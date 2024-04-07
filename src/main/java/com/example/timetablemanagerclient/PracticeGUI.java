@@ -21,14 +21,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ApplicationGUI extends Application {
+public class PracticeGUI extends Application {
 
     private Stage primaryStage;
-    private ApplicationController controller;
+    //private ApplicationController controller;
 
     @Override
     public void start(Stage primaryStage) throws UnknownHostException {
-        this.controller = new ApplicationController();
+        //this.controller = new ApplicationController();
         this.primaryStage = primaryStage;
         primaryStage.setTitle("Class Scheduler");
         showStartScreen();
@@ -76,6 +76,7 @@ public class ApplicationGUI extends Application {
         primaryStage.show();
     }
 
+
     private void showOptionsScreen() {
         // Options screen: Add class, Remove class, Display timetable, Close app
         Button addClassButton = new Button("Add Class");
@@ -84,12 +85,12 @@ public class ApplicationGUI extends Application {
         addClassButton.setOnAction(e -> showAddClassScreen());
 
         Button removeClassButton = new Button("Remove Class");
-        removeClassButton.setOnAction(e -> showRemoveClassScreen());
+        //removeClassButton.setOnAction(e -> showRemoveClassScreen());
         removeClassButton.setPrefSize(150, 40);
         removeClassButton.setFont(Font.font(15));
 
         Button displayTimetableButton = new Button("Display Timetable");
-        displayTimetableButton.setOnAction(e -> showTimetableScreen());
+        //displayTimetableButton.setOnAction(e -> showTimetableScreen());
         displayTimetableButton.setPrefSize(150, 40);
         displayTimetableButton.setFont(Font.font(15));
 
@@ -117,6 +118,7 @@ public class ApplicationGUI extends Application {
         primaryStage.show();
     }
 
+
     private void showAddClassScreen() {
         Stage addClassStage = new Stage();
         addClassStage.setTitle("Add Class");
@@ -129,22 +131,16 @@ public class ApplicationGUI extends Application {
         moduleCodeField.setPromptText("Module Code");
         moduleCodeField.setPrefWidth(200); // Set the preferred width
 
-
-        // Drop-down box for day of week
-        ComboBox<String> dayComboBox = new ComboBox<>();
-        dayComboBox.setPromptText("Day");
-        dayComboBox.setPrefWidth(200);
-        ObservableList<String> days = FXCollections.observableArrayList("Monday", "Tuesday", "Wednesday", "Thursday", "Friday");
-        dayComboBox.setItems(days);
-
+        // DatePicker for start date
+        DatePicker startDatePicker = new DatePicker();
+        startDatePicker.setPromptText("Start Date");
+        startDatePicker.setPrefWidth(200); // Set the preferred width
 
         // Drop-down box for start time
         ComboBox<String> startTimeComboBox = new ComboBox<>();
         startTimeComboBox.setPromptText("Start Time");
         startTimeComboBox.setPrefWidth(200);
-        ObservableList<String> times = FXCollections.observableArrayList(
-                "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"
-        );
+        ObservableList<String> times = FXCollections.observableArrayList("09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00");
         startTimeComboBox.setItems(times);
 
         // Drop-down box for end time
@@ -162,7 +158,7 @@ public class ApplicationGUI extends Application {
 
         Label classIdLabel = new Label("Class ID:");
         Label moduleLabel = new Label("Module:");
-        Label dayLabel = new Label("Day:");
+        Label dateLabel = new Label("Date:");
         Label startLabel = new Label("Start:");
         Label endLabel = new Label("End:");
         Label roomLabel = new Label("Room:");
@@ -183,8 +179,8 @@ public class ApplicationGUI extends Application {
         addClassLayout.add(roomLabel, 0, 2);
         addClassLayout.add(roomCodeField, 1, 2);
 
-        addClassLayout.add(dayLabel, 0, 3);
-        addClassLayout.add(dayComboBox, 1, 3);
+        addClassLayout.add(dateLabel, 0, 3);
+        addClassLayout.add(startDatePicker, 1, 3);
 
         addClassLayout.add(startLabel, 0, 4);
         addClassLayout.add(startTimeComboBox, 1, 4);
@@ -202,6 +198,8 @@ public class ApplicationGUI extends Application {
         addClassStage.setScene(addClassScene);
         addClassStage.show();
 
+
+        // Submit add class request action/event
         submitButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
@@ -211,15 +209,13 @@ public class ApplicationGUI extends Application {
                 String room = roomCodeField.getText();
                 String startTime = startTimeComboBox.getValue();
                 String endTime = endTimeComboBox.getValue();
-                String day = dayComboBox.getValue();
+                String date = startDatePicker.getValue().toString();
 
-                boolean fieldsCorrect = checkFields(classId, module, room, startTime, endTime, day);
-                ClassSchedule classSchedule = new ClassSchedule(classId, module, room, startTime, endTime, day);
-                Label responseLabel = new Label();
+                boolean fieldsCorrect = checkFields(classId, module, room, startTime, endTime, date);
+                ClassSchedule classSchedule = new ClassSchedule(classId, module, room, startTime, endTime, date);
 
                 if(fieldsCorrect){
-                    Task<String> task = new ScheduleTask(classSchedule, "add");
-                    responseLabel.textProperty().bind(task.messageProperty());
+                    Task<String> task = new TimetableTask(classSchedule, "add");
 
                     task.setOnRunning((successEvent) -> {
                         submitButton.setDisable(true);
@@ -240,76 +236,9 @@ public class ApplicationGUI extends Application {
 
     }
 
-    private void showRemoveClassScreen() {
-        Stage removeClassStage = new Stage();
-        removeClassStage.setTitle("Remove Class");
-    }
-
-    private void showTimetableScreen() {
-        Stage timetableStage = new Stage();
-        timetableStage.setTitle("Timetable");
-
-        // Text field for confirming course ID
-        TextField courseIDField = new TextField();
-        courseIDField.setPromptText("Enter Course ID");
-        Button confirmButton = new Button("Confirm");
-
-        confirmButton.setOnAction(e -> {
-            try {
-                displayTimetable(controller.displayClass(courseIDField.getText()));
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-        });
-
-        Button cancelButton = new Button("Cancel");
-        cancelButton.setOnAction(e -> timetableStage.close());
-
-        HBox buttonLayout = new HBox(10);
-        buttonLayout.getChildren().addAll(confirmButton, cancelButton);
-        buttonLayout.setAlignment(Pos.CENTER);
-
-        VBox timetableLayout = new VBox(10);
-        timetableLayout.setStyle("-fx-background-color: #839ca3;");
-        timetableLayout.getChildren().addAll(courseIDField, buttonLayout);
-        settingScene(timetableLayout);
-    }
-
-    private void displayAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Information");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    private void displayTimetable(String timetable) {
-        // Display timetable received from server
-        TextArea timetableTextArea = new TextArea(timetable);
-        timetableTextArea.setEditable(false);
-
-        Button okButton = new Button("OK");
-        okButton.setOnAction(e -> showOptionsScreen());
-
-        VBox timetableLayout = new VBox(10);
-        timetableLayout.setStyle("-fx-background-color: #839ca3;");
-        timetableLayout.getChildren().addAll(timetableTextArea, okButton);
-        settingScene(timetableLayout);
-    }
-
-    private void settingScene(VBox layout) {
-        layout.setAlignment(Pos.CENTER);
-        layout.setPadding(new Insets(20));
-
-        Scene displayScene = new Scene(layout, 400, 300);
-
-        primaryStage.setScene(displayScene);
-        primaryStage.show();
-    }
-
-    private boolean checkFields(String classId, String moduleCode, String roomCode, String startTime, String endTime, String day) {
+    private boolean checkFields(String classId, String moduleCode, String roomCode, String startTime, String endTime, String date) {
         // Check if any field is empty
-        if (moduleCode.trim().isEmpty() || day.trim().isEmpty() || startTime.trim().isEmpty() || endTime.trim().isEmpty() || roomCode.isEmpty()) {
+        if (classId.trim().isEmpty() || moduleCode.trim().isEmpty() || date.trim().isEmpty() || startTime.trim().isEmpty() || endTime.trim().isEmpty() || roomCode.isEmpty()) {
             displayAlert("Please fill in all fields.");
             return false;
         }
@@ -327,8 +256,11 @@ public class ApplicationGUI extends Application {
         return true;
     }
 
-
-    public static void main(String[] args) {
-        launch(args);
+    private void displayAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Information");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
