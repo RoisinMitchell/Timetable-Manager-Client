@@ -1,21 +1,28 @@
 package com.example.timetablemanagerclient;
 
-import java.time.LocalDate;
-
 public class ClassSchedule {
-    private String className; // Format: LM051-2022
+    private String classId; // Format: LM051-2022
     private String module; // Format: CS4115
-    private String roomNumber; // Format: S205
+    private String room; // Format: S205
     private String startTime; // Format: HH:mm
     private String endTime; // Format: HH:mm
-    private LocalDate date; // Format: yyyy-mm-dd
+    private String date; // Format: yyyy-mm-dd
 
-    public void setClassName(String className){
-        this.className = className;
+    public ClassSchedule(String classId, String module, String room, String startTime, String endTime, String date){
+        this.classId = classId;
+        this.module = module;
+        this.room = room;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.date = date;
     }
 
-    public String getClassName(){
-        return this.className;
+    public void setClassId(String className){
+        this.classId = className;
+    }
+
+    public String getClassId(){
+        return this.classId;
     }
 
     public void setModule(String module){
@@ -28,13 +35,13 @@ public class ClassSchedule {
     }
 
 
-    public void setRoomNumber(String roomNumber){
-        this.roomNumber = roomNumber;
+    public void setRoom(String room){
+        this.room = room;
     }
 
 
-    public String getRoomNumber(){
-        return this.roomNumber;
+    public String getRoom(){
+        return this.room;
     }
 
     public void setStartTime(String startTime){
@@ -53,12 +60,17 @@ public class ClassSchedule {
         return this.endTime;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
-    public LocalDate getDate(){
+    public String getDate(){
         return this.date;
+    }
+
+    @Override
+    public String toString(){
+        return classId + "," + module + "," + room + "," + startTime + "," + endTime + "," + date;
     }
 
 }

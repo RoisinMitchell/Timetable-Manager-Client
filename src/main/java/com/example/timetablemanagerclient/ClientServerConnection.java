@@ -34,17 +34,12 @@ public class ClientServerConnection {
         try {
             DataOutputStream dataOutputStream = new DataOutputStream(connection.getOutputStream());
             DataInputStream dataInputStream = new DataInputStream(connection.getInputStream());
-            System.out.println("Sending add class request to the server...\n");
+            System.out.println("\nSending add class request to the server...\n");
             dataOutputStream.writeUTF(classSchedule);
             dataOutputStream.flush();
 
             String serverResponse = dataInputStream.readUTF();
-
-            result = serverResponse.equalsIgnoreCase("true");
-
-            if(!result){
-                System.out.println(serverResponse);
-            }
+            System.out.println(serverResponse);
 
             dataOutputStream.close();
             dataInputStream.close();
@@ -61,17 +56,12 @@ public class ClientServerConnection {
         try {
             DataOutputStream dataOutputStream = new DataOutputStream(connection.getOutputStream());
             DataInputStream dataInputStream = new DataInputStream(connection.getInputStream());
-            System.out.println("Sending remove class request to the server...\n");
+            System.out.println("\nSending remove class request to the server...\n");
             dataOutputStream.writeUTF(classSchedule);
             dataOutputStream.flush();
 
             String serverResponse = dataInputStream.readUTF();
-
-            result = serverResponse.equalsIgnoreCase("true");
-
-            if(!result){
-                System.out.println(serverResponse);
-            }
+            System.out.println(serverResponse);
 
             dataOutputStream.close();
             dataInputStream.close();
@@ -88,8 +78,8 @@ public class ClientServerConnection {
         try {
             DataOutputStream dataOutputStream = new DataOutputStream(connection.getOutputStream());
             DataInputStream dataInputStream = new DataInputStream(connection.getInputStream());
-            System.out.println("Sending display class request to the server...\n");
-            dataOutputStream.writeUTF(className);
+            System.out.println("\nSending display class request to the server...\n");
+            dataOutputStream.writeUTF("display,"+className);
             dataOutputStream.flush();
 
             serverResponse = dataInputStream.readUTF();
@@ -111,7 +101,7 @@ public class ClientServerConnection {
             dataOutputStream.close();
 
         } catch (IOException exception) {
-            System.out.println("Unable to disconnect!"); // Notify if unable to disconnect
+            System.out.println("\nUnable to disconnect!\n"); // Notify if unable to disconnect
             exception.printStackTrace(); // Print stack trace if an I/O error occurs during disconnection
         }
     }
