@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -27,7 +28,7 @@ public class ApplicationGUI extends Application {
     private ApplicationController controller;
 
     @Override
-    public void start(Stage primaryStage) throws UnknownHostException {
+    public void start(Stage primaryStage){
         this.controller = new ApplicationController();
         this.primaryStage = primaryStage;
         primaryStage.setTitle("Class Scheduler");
@@ -35,7 +36,7 @@ public class ApplicationGUI extends Application {
     }
 
     private void showStartScreen() {
-        Label welcomeLabel = new Label("Welcome to the class scheduler");
+        Label welcomeLabel = new Label("Class scheduler");
         welcomeLabel.setFont(Font.font(20));
 
         Button enterButton = createButton("Enter", 100, 40, 15, e -> showOptionsScreen());
@@ -56,8 +57,8 @@ public class ApplicationGUI extends Application {
     }
 
     private void showOptionsScreen() {
-        Button addClassButton = createButton("Add Class", 150, 40, 15, e -> showAddClassScreen());
-        Button removeClassButton = createButton("Remove Class", 150, 40, 15, e -> showRemoveClassScreen());
+        Button addClassButton = createButton("Add Class", 150, 40, 15, e -> showModifyClassScreen("Add"));
+        Button removeClassButton = createButton("Remove Class", 150, 40, 15, e -> showModifyClassScreen("Remove"));
         Button displayTimetableButton = createButton("Display Timetable", 150, 40, 15, e -> showTimetableScreen());
         Button closeButton = createButton("Close App", 150, 40, 15, e -> closeApplication());
 
@@ -72,9 +73,10 @@ public class ApplicationGUI extends Application {
         primaryStage.show();
     }
 
-    private void showAddClassScreen() {
-        Stage addClassStage = new Stage();
-        addClassStage.setTitle("Add Class");
+    private void showModifyClassScreen(String requestType) {
+        primaryStage.close();
+        Stage modifyClassStage = new Stage();
+        modifyClassStage.setTitle(requestType + " Class");
 
         TextField classIdField = new TextField();
         classIdField.setPromptText("Class ID");
@@ -147,127 +149,10 @@ public class ApplicationGUI extends Application {
 
         addClassLayout.add(buttonBox, 0, 8, 2, 1);
 
-        Scene addClassScene = new Scene(addClassLayout, 400, 300);
+        Scene modifyClassScene = new Scene(addClassLayout, 400, 300);
 
-        addClassStage.setScene(addClassScene);
-        addClassStage.show();
-
-        submitButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                String classId = classIdField.getText();
-                String module = moduleCodeField.getText();
-                String room = roomField.getText();
-                String startTime = startTimeComboBox.getValue();
-                String endTime = endTimeComboBox.getValue();
-                String day = dayComboBox.getValue();
-
-                boolean fieldsCorrect = checkFields(classId, module, room, startTime, endTime, day);
-                ClassSchedule classSchedule = new ClassSchedule(classId, module, room, startTime, endTime, day);
-                Label responseLabel = new Label();
-
-                if (fieldsCorrect) {
-                    Task<String> task = new ScheduleTask(classSchedule, "add");
-                    responseLabel.textProperty().bind(task.messageProperty());
-
-                    task.setOnRunning((successEvent) -> {
-                        submitButton.setDisable(true);
-                    });
-
-                    task.setOnSucceeded((succeededEvent) -> {
-                        submitButton.setDisable(false);
-                    });
-
-                    ExecutorService executorService = Executors.newSingleThreadExecutor();
-                    executorService.execute(task);
-                    executorService.shutdown();
-                    addClassStage.close();
-                }
-            }
-        });
-
-        cancelButton.setOnAction(e -> addClassStage.close());
-    }
-
-    private void showRemoveClassScreen() {
-        Stage removeClassStage = new Stage();
-        removeClassStage.setTitle("Add Class");
-
-        TextField classIdField = new TextField();
-        classIdField.setPromptText("Class ID");
-        classIdField.setPrefWidth(200); // Set the preferred width
-
-        TextField moduleCodeField = new TextField();
-        moduleCodeField.setPromptText("Module Code");
-        moduleCodeField.setPrefWidth(200); // Set the preferred width
-
-        ComboBox<String> dayComboBox = new ComboBox<>();
-        dayComboBox.setPromptText("Day");
-        dayComboBox.setPrefWidth(200);
-        ObservableList<String> days = FXCollections.observableArrayList("Monday", "Tuesday", "Wednesday", "Thursday", "Friday");
-        dayComboBox.setItems(days);
-
-        ComboBox<String> startTimeComboBox = new ComboBox<>();
-        startTimeComboBox.setPromptText("Start Time");
-        startTimeComboBox.setPrefWidth(200);
-        ObservableList<String> times = FXCollections.observableArrayList(
-                "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"
-        );
-        startTimeComboBox.setItems(times);
-
-        ComboBox<String> endTimeComboBox = new ComboBox<>();
-        endTimeComboBox.setPromptText("End Time");
-        endTimeComboBox.setItems(times);
-        endTimeComboBox.setPrefWidth(200);
-
-        TextField roomField = new TextField();
-        roomField.setPromptText("Room Code");
-        roomField.setPrefWidth(200);
-
-        Button submitButton = new Button("Submit");
-        Button cancelButton = new Button("Cancel");
-
-        Label classIdLabel = new Label("Class ID:");
-        Label moduleLabel = new Label("Module:");
-        Label dayLabel = new Label("Day:");
-        Label startLabel = new Label("Start:");
-        Label endLabel = new Label("End:");
-        Label roomLabel = new Label("Room:");
-
-        GridPane addClassLayout = new GridPane();
-        addClassLayout.setStyle("-fx-background-color: #839ca3;");
-        addClassLayout.setAlignment(Pos.CENTER);
-        addClassLayout.setHgap(10);
-        addClassLayout.setVgap(10);
-        addClassLayout.setPadding(new Insets(20));
-
-        addClassLayout.add(classIdLabel, 0, 0);
-        addClassLayout.add(classIdField, 1, 0);
-
-        addClassLayout.add(moduleLabel, 0, 1);
-        addClassLayout.add(moduleCodeField, 1, 1);
-
-        addClassLayout.add(roomLabel, 0, 2);
-        addClassLayout.add(roomField, 1, 2);
-
-        addClassLayout.add(dayLabel, 0, 3);
-        addClassLayout.add(dayComboBox, 1, 3);
-
-        addClassLayout.add(startLabel, 0, 4);
-        addClassLayout.add(startTimeComboBox, 1, 4);
-
-        addClassLayout.add(endLabel, 0, 5);
-        addClassLayout.add(endTimeComboBox, 1, 5);
-
-        HBox buttonBox = new HBox(20, submitButton, cancelButton);
-        buttonBox.setAlignment(Pos.CENTER);
-
-        addClassLayout.add(buttonBox, 0, 8, 2, 1);
-
-        Scene addClassScene = new Scene(addClassLayout, 400, 300);
-
-        removeClassStage.setScene(addClassScene);
-        removeClassStage.show();
+        modifyClassStage.setScene(modifyClassScene);
+        modifyClassStage.show();
 
         submitButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -284,8 +169,9 @@ public class ApplicationGUI extends Application {
                 Label responseLabel = new Label();
 
                 if (fieldsCorrect) {
-                    Task<String> task = new ScheduleTask(classSchedule, "remove");
-                    responseLabel.textProperty().bind(task.messageProperty());
+                    Task<String> task = new ScheduleTask(classSchedule, requestType.toLowerCase());
+                    responseLabel.textProperty().bind(task.valueProperty());
+
 
                     task.setOnRunning((successEvent) -> {
                         submitButton.setDisable(true);
@@ -298,12 +184,18 @@ public class ApplicationGUI extends Application {
                     ExecutorService executorService = Executors.newSingleThreadExecutor();
                     executorService.execute(task);
                     executorService.shutdown();
-                    removeClassStage.close(); ///////////////////////////////////////////////////////
+
+                    displayAlert(responseLabel.getText());
+                    modifyClassStage.close();
+                    showOptionsScreen();
                 }
             }
         });
 
-        cancelButton.setOnAction(e -> removeClassStage.close());
+        cancelButton.setOnAction(e -> {
+            modifyClassStage.close();
+            showOptionsScreen();
+        });
     }
 
     private void showTimetableScreen() {
@@ -313,7 +205,7 @@ public class ApplicationGUI extends Application {
         TextField courseIDField = new TextField();
         courseIDField.setPromptText("Enter Course ID");
         Button confirmButton = new Button("Confirm");
-
+//////////////////////////////////////////////////////////////////////////// use concurrency here
         confirmButton.setOnAction(e -> {
             try {
                 displayTimetable(controller.displayClass(courseIDField.getText()));
@@ -348,7 +240,9 @@ public class ApplicationGUI extends Application {
         timetableTextArea.setEditable(false);
 
         Button okButton = new Button("OK");
+
         okButton.setOnAction(e -> showOptionsScreen());
+
 
         VBox timetableLayout = new VBox(10);
         timetableLayout.setStyle("-fx-background-color: #839ca3;");
