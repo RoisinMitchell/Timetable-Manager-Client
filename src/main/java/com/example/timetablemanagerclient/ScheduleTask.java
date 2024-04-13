@@ -10,6 +10,7 @@ public class ScheduleTask extends Task<String> {
     private ClassSchedule classSchedule;
     private String request;
     private String classID;
+    private String response;
 
     public ScheduleTask(ClassSchedule classSchedule, String request){
         this.classSchedule = classSchedule;
@@ -21,41 +22,64 @@ public class ScheduleTask extends Task<String> {
         this.request = request.toLowerCase();
     }
 
+    public ScheduleTask(){
+    }
+
     @Override
     protected String call() throws Exception {
-        String result = "";
+
         controller = new ApplicationController();
 
-        updateMessage("    Processing... ");
+        updateMessage("Processing... ");
 
         switch (request){
             case "add":
-                result = addClass(classSchedule);
+                response = addClass(classSchedule);
+                updateValue(response);
                 break;
             case "remove":
-                result = removeClass(classSchedule);
+                response = removeClass(classSchedule);
+                updateValue(response);
                 break;
             case "display":
-                result = displayClass(classID);
+                response = displayClass(classID);
+                updateValue(response);
                 break;
         }
+        updateMessage("Done.  ");
 
-        updateMessage("    Done.  ");
-        return result;
+        return response;
+    }
+
+    @Override
+    protected void cancelled(){
+        super.cancelled();
+        this.updateMessage("Task was cancelled!");
+    }
+
+    @Override
+    protected void failed(){
+        super.failed();
+        this.updateMessage("Task failed!");
+    }
+
+    @Override
+    protected void succeeded(){
+        super.succeeded();
+        this.updateMessage("Task succeeded!");
     }
 
     private String addClass(ClassSchedule classSchedule) throws IOException {
-        boolean requestResult = controller.addClass(classSchedule);
-        return requestResult ? "Schedule was added" : "Schedule not added";
+        return controller.addClass(classSchedule);
     }
 
     private String removeClass(ClassSchedule classSchedule) throws IOException {
-        boolean requestResult = controller.removeClass(classSchedule);
-        return requestResult ? "Schedule was removed" : "Schedule was not removed";
+        return controller.removeClass(classSchedule);
     }
 
     private String displayClass(String classID) throws IOException {
         return controller.displayClass(classID);
     }
+
 
 }

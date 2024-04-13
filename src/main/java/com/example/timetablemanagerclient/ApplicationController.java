@@ -4,31 +4,35 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 
 public class ApplicationController {
-    private ClassSchedule model; // The model representing a class schedule
     private ApplicationView view; // The view for displaying information
     private ClientServerConnection connection; // The connection to the server application
+    private String serverResponse;
 
 
-    public boolean addClass(ClassSchedule classSchedule) throws IOException {
+    public String addClass(ClassSchedule classSchedule) throws IOException {
         this.connection = new ClientServerConnection();
-        boolean addClassResult = connection.requestAddClass("add," + classSchedule);
-        this.view = new ApplicationView("add", addClassResult);
-        return addClassResult;
+        this.serverResponse = connection.requestAddClass("add," + classSchedule);
+        this.view = new ApplicationView("add", serverResponse);
+        return serverResponse;
     }
 
-    public boolean removeClass(ClassSchedule classSchedule) throws IOException {
+    public String removeClass(ClassSchedule classSchedule) throws IOException {
         this.connection = new ClientServerConnection();
-        boolean removeClassResult = connection.requestRemoveClass("remove," + classSchedule);
-        this.view = new ApplicationView("remove", removeClassResult);
-        return  removeClassResult;
+        this.serverResponse = connection.requestRemoveClass("remove," + classSchedule);
+        this.view = new ApplicationView("remove", serverResponse);
+        return  serverResponse;
     }
 
     public String displayClass(String className) throws IOException {
         // Sending String request to the server
         this.connection = new ClientServerConnection();
-        String displayClassResult = connection.requestDisplayClass(className);
-        this.view = new ApplicationView("display", displayClassResult);
-        return displayClassResult;
+        this.serverResponse = connection.requestDisplayClass(className);
+        this.view = new ApplicationView("display", serverResponse);
+        return serverResponse;
+    }
+
+    public String updateView(){
+        return view.updateView();
     }
 
     public void requestCloseConnection(){

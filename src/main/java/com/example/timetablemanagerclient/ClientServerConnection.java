@@ -29,8 +29,7 @@ public class ClientServerConnection {
         }
     }
 
-    public boolean requestAddClass(String classSchedule) throws IOException {
-        boolean result = false;
+    public String requestAddClass(String classSchedule) throws IOException {
         try {
             DataOutputStream dataOutputStream = new DataOutputStream(connection.getOutputStream());
             DataInputStream dataInputStream = new DataInputStream(connection.getInputStream());
@@ -44,15 +43,16 @@ public class ClientServerConnection {
             dataOutputStream.close();
             dataInputStream.close();
             connection.close();
+            return serverResponse;
 
         } catch (IOException exception) {
             exception.printStackTrace(); // Print stack trace if an I/O error occurs
         }
-        return result;
+
+        return "No response received from server!";
     }
 
-    public boolean requestRemoveClass(String classSchedule) {
-        boolean result = false;
+    public String requestRemoveClass(String classSchedule) {
         try {
             DataOutputStream dataOutputStream = new DataOutputStream(connection.getOutputStream());
             DataInputStream dataInputStream = new DataInputStream(connection.getInputStream());
@@ -66,11 +66,12 @@ public class ClientServerConnection {
             dataOutputStream.close();
             dataInputStream.close();
             connection.close();
+            return serverResponse;
 
         } catch (IOException exception) {
             exception.printStackTrace();
         }
-        return result;
+        return "No response received from server!";
     }
 
     public String requestDisplayClass(String className) {
