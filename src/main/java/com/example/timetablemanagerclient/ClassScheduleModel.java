@@ -1,6 +1,6 @@
 package com.example.timetablemanagerclient;
 
-public class ClassSchedule {
+public class ClassScheduleModel {
     private String classId; // Format: LM051-2022
     private String module; // Format: CS4115
     private String room; // Format: S205
@@ -8,7 +8,7 @@ public class ClassSchedule {
     private String endTime; // Format: HH:mm
     private String date; // Format: yyyy-mm-dd
 
-    public ClassSchedule(String classId, String module, String room, String startTime, String endTime, String date){
+    public ClassScheduleModel(String classId, String module, String room, String startTime, String endTime, String date){
         this.classId = classId;
         this.module = module;
         this.room = room;
