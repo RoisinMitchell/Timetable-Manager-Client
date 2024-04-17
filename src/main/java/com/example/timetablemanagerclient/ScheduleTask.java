@@ -6,14 +6,14 @@ import java.io.IOException;
 
 public class ScheduleTask extends Task<String> {
 
-    private ApplicationController controller;
-    private ClassSchedule classSchedule;
+    private TimetableManagerController controller;
+    private ClassScheduleModel classScheduleModel;
     private String request;
     private String classID;
     private String response;
 
-    public ScheduleTask(ClassSchedule classSchedule, String request){
-        this.classSchedule = classSchedule;
+    public ScheduleTask(ClassScheduleModel classScheduleModel, String request){
+        this.classScheduleModel = classScheduleModel;
         this.request = request.toLowerCase();
     }
 
@@ -26,23 +26,27 @@ public class ScheduleTask extends Task<String> {
     }
 
     @Override
-    protected String call() throws Exception {
+    protected String call() {
 
-        controller = new ApplicationController();
+        controller = new TimetableManagerController();
 
         updateMessage("Processing... ");
 
         switch (request){
             case "add":
-                response = addClass(classSchedule);
+                response = addClass(classScheduleModel);
                 updateValue(response);
                 break;
             case "remove":
-                response = removeClass(classSchedule);
+                response = removeClass(classScheduleModel);
                 updateValue(response);
                 break;
             case "display":
                 response = displayClass(classID);
+                updateValue(response);
+                break;
+            case "early":
+                response = requestEarlyLectures(classID);
                 updateValue(response);
                 break;
         }
@@ -69,17 +73,20 @@ public class ScheduleTask extends Task<String> {
         this.updateMessage("Task succeeded!");
     }
 
-    private String addClass(ClassSchedule classSchedule) throws IOException {
-        return controller.addClass(classSchedule);
+    private String addClass(ClassScheduleModel classScheduleModel) {
+        return controller.addClass(classScheduleModel);
     }
 
-    private String removeClass(ClassSchedule classSchedule) throws IOException {
-        return controller.removeClass(classSchedule);
+    private String removeClass(ClassScheduleModel classScheduleModel) {
+        return controller.removeClass(classScheduleModel);
     }
 
-    private String displayClass(String classID) throws IOException {
-        return controller.displayClass(classID);
+    private String displayClass(String courseID) {
+        return controller.displayClass(courseID);
     }
 
+    private String requestEarlyLectures(String courseID){
+        return controller.requestEarlyLectures(courseID);
+    }
 
 }

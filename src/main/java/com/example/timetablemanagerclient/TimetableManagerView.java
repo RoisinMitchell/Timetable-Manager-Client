@@ -4,7 +4,6 @@ import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -15,21 +14,17 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ApplicationGUI extends Application {
+public class TimetableManagerView extends Application {
 
     private Stage primaryStage;
-    private ApplicationController controller;
 
     @Override
     public void start(Stage primaryStage){
-        this.controller = new ApplicationController();
         this.primaryStage = primaryStage;
         primaryStage.setTitle("Class Scheduler");
         showStartScreen();
@@ -57,10 +52,10 @@ public class ApplicationGUI extends Application {
     }
 
     private void showOptionsScreen() {
-        Button addClassButton = createButton("Add Class", 150, 40, 15, e -> showModifyClassScreen("Add"));
-        Button removeClassButton = createButton("Remove Class", 150, 40, 15, e -> showModifyClassScreen("Remove"));
+        Button addClassButton = createButton("Add Class", 150, 40, 15, e -> showModifyTimetableScreen("Add"));
+        Button removeClassButton = createButton("Remove Class", 150, 40, 15, e -> showModifyTimetableScreen("Remove"));
         Button displayTimetableButton = createButton("Display Timetable", 150, 40, 15, e -> showTimetableScreen());
-        Button closeButton = createButton("Close App", 150, 40, 15, e -> closeApplication());
+        Button closeButton = createButton("Early Lectures", 150, 40, 15, e -> showEarlyLecturesScreen());
 
         VBox optionsLayout = new VBox(20, addClassButton, removeClassButton, displayTimetableButton, closeButton);
         optionsLayout.setStyle("-fx-background-color: #839ca3;");
@@ -73,7 +68,7 @@ public class ApplicationGUI extends Application {
         primaryStage.show();
     }
 
-    private void showModifyClassScreen(String requestType) {
+    private void showModifyTimetableScreen(String requestType) {
         primaryStage.close();
         Stage modifyClassStage = new Stage();
         modifyClassStage.setTitle(requestType + " Class");
@@ -165,11 +160,11 @@ public class ApplicationGUI extends Application {
                 String day = dayComboBox.getValue();
 
                 boolean fieldsCorrect = checkFields(classId, module, room, startTime, endTime, day);
-                ClassSchedule classSchedule = new ClassSchedule(classId, module, room, startTime, endTime, day);
+                ClassScheduleModel classScheduleModel = new ClassScheduleModel(classId, module, room, startTime, endTime, day);
                 Label responseLabel = new Label();
 
                 if (fieldsCorrect) {
-                    Task<String> task = new ScheduleTask(classSchedule, requestType.toLowerCase());
+                    Task<String> task = new ScheduleTask(classScheduleModel, requestType.toLowerCase());
                     responseLabel.textProperty().bind(task.valueProperty());
 
 
@@ -179,15 +174,15 @@ public class ApplicationGUI extends Application {
 
                     task.setOnSucceeded((succeededEvent) -> {
                         submitButton.setDisable(false);
+                        String result = task.getValue();
+                        displayAlert(result);
+                        modifyClassStage.close();
+                        showOptionsScreen();
                     });
 
                     ExecutorService executorService = Executors.newSingleThreadExecutor();
                     executorService.execute(task);
                     executorService.shutdown();
-
-                    displayAlert(responseLabel.getText());
-                    modifyClassStage.close();
-                    showOptionsScreen();
                 }
             }
         });
@@ -205,12 +200,27 @@ public class ApplicationGUI extends Application {
         TextField courseIDField = new TextField();
         courseIDField.setPromptText("Enter Course ID");
         Button confirmButton = new Button("Confirm");
-//////////////////////////////////////////////////////////////////////////// use concurrency here
-        confirmButton.setOnAction(e -> {
-            try {
-                displayTimetable(controller.displayClass(courseIDField.getText()));
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
+        confirmButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                String courseID = courseIDField.getText();
+                Task<String> task = new ScheduleTask(courseID, "display");
+
+                task.setOnRunning((successEvent) -> {
+                    confirmButton.setDisable(true);
+                });
+
+                task.setOnSucceeded((succeededEvent) -> {
+                    confirmButton.setDisable(false);
+                    String formattedTimetable = TimetableFormatter.formatTimetable(task.getValue());
+                    displayAlert(formattedTimetable);
+                    timetableStage.close();
+                    showOptionsScreen();
+                });
+
+                ExecutorService executorService = Executors.newSingleThreadExecutor();
+                executorService.execute(task);
+                executorService.shutdown();
             }
         });
 
@@ -224,7 +234,65 @@ public class ApplicationGUI extends Application {
         VBox timetableLayout = new VBox(10);
         timetableLayout.setStyle("-fx-background-color: #839ca3;");
         timetableLayout.getChildren().addAll(courseIDField, buttonLayout);
-        settingScene(timetableLayout);
+
+        timetableLayout.setAlignment(Pos.CENTER);
+        timetableLayout.setPadding(new Insets(20));
+
+        Scene timetableScene = new Scene(timetableLayout, 400, 300);
+
+        primaryStage.setScene(timetableScene);
+        primaryStage.show();
+    }
+
+    private void showEarlyLecturesScreen() {
+        Stage earlyLecturesStage = new Stage();
+        earlyLecturesStage.setTitle("Timetable");
+
+        TextField courseIDField = new TextField();
+        courseIDField.setPromptText("Enter Course ID");
+        Button confirmButton = new Button("Confirm");
+        confirmButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                String courseID = courseIDField.getText();
+                Task<String> task = new ScheduleTask(courseID, "early");
+
+                task.setOnRunning((successEvent) -> {
+                    confirmButton.setDisable(true);
+                });
+
+                task.setOnSucceeded((succeededEvent) -> {
+                    confirmButton.setDisable(false);
+                    String result = task.getValue();
+                    displayAlert(result);
+                    earlyLecturesStage.close();
+                    showOptionsScreen();
+                });
+
+                ExecutorService executorService = Executors.newSingleThreadExecutor();
+                executorService.execute(task);
+                executorService.shutdown();
+            }
+        });
+
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setOnAction(e -> earlyLecturesStage.close());
+
+        HBox buttonLayout = new HBox(10);
+        buttonLayout.getChildren().addAll(confirmButton, cancelButton);
+        buttonLayout.setAlignment(Pos.CENTER);
+
+        VBox timetableLayout = new VBox(10);
+        timetableLayout.setStyle("-fx-background-color: #839ca3;");
+        timetableLayout.getChildren().addAll(courseIDField, buttonLayout);
+
+        timetableLayout.setAlignment(Pos.CENTER);
+        timetableLayout.setPadding(new Insets(20));
+
+        Scene earlyLecturesScene = new Scene(timetableLayout, 400, 300);
+
+        primaryStage.setScene(earlyLecturesScene);
+        primaryStage.show();
     }
 
     private void displayAlert(String message) {
@@ -233,31 +301,6 @@ public class ApplicationGUI extends Application {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
-    }
-
-    private void displayTimetable(String timetable) {
-        TextArea timetableTextArea = new TextArea(timetable);
-        timetableTextArea.setEditable(false);
-
-        Button okButton = new Button("OK");
-
-        okButton.setOnAction(e -> showOptionsScreen());
-
-
-        VBox timetableLayout = new VBox(10);
-        timetableLayout.setStyle("-fx-background-color: #839ca3;");
-        timetableLayout.getChildren().addAll(timetableTextArea, okButton);
-        settingScene(timetableLayout);
-    }
-
-    private void settingScene(VBox layout) {
-        layout.setAlignment(Pos.CENTER);
-        layout.setPadding(new Insets(20));
-
-        Scene displayScene = new Scene(layout, 400, 300);
-
-        primaryStage.setScene(displayScene);
-        primaryStage.show();
     }
 
     private boolean checkFields(String classId, String moduleCode, String room, String startTime, String endTime, String day) {
@@ -293,6 +336,8 @@ public class ApplicationGUI extends Application {
         alert.showAndWait();
         primaryStage.close();
     }
+
+
 
     public static void main(String[] args) {
         launch(args);
