@@ -24,7 +24,7 @@ public class TimetableManagerController {
 
     public String requestEarlyLectures(String courseID){
         this.connection = new TimetableManagerModel();
-        this.serverResponse = connection.requestEarlyLectures("display," + courseID);
+        this.serverResponse = connection.requestEarlyLectures("early," + courseID);
         return serverResponse;
     }
 }

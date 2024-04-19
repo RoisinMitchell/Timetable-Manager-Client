@@ -246,7 +246,7 @@ public class TimetableManagerView extends Application {
 
     private void showEarlyLecturesScreen() {
         Stage earlyLecturesStage = new Stage();
-        earlyLecturesStage.setTitle("Timetable");
+        earlyLecturesStage.setTitle("Early Lectures");
 
         TextField courseIDField = new TextField();
         courseIDField.setPromptText("Enter Course ID");
