@@ -1,28 +1,32 @@
 package com.example.timetablemanagerclient;
 
-public class ClassScheduleModel {
-    private String classId; // Format: LM051-2022
+public class ScheduleModel {
+    private String courseID; // Format: LM051-2022
     private String module; // Format: CS4115
     private String room; // Format: S205
     private String startTime; // Format: HH:mm
     private String endTime; // Format: HH:mm
-    private String date; // Format: yyyy-mm-dd
+    private String day; // Format: yyyy-mm-dd
 
-    public ClassScheduleModel(String classId, String module, String room, String startTime, String endTime, String date){
-        this.classId = classId;
+    public ScheduleModel(String courseID, String module, String room, String startTime, String endTime, String day){
+        this.courseID = courseID;
         this.module = module;
         this.room = room;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.date = date;
+        this.day = day;
     }
 
-    public void setClassId(String className){
-        this.classId = className;
+    public ScheduleModel(){
+
     }
 
-    public String getClassId(){
-        return this.classId;
+    public void setCourseID(String className){
+        this.courseID = className;
+    }
+
+    public String getCourseID(){
+        return this.courseID;
     }
 
     public void setModule(String module){
@@ -60,17 +64,17 @@ public class ClassScheduleModel {
         return this.endTime;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setDay(String day) {
+        this.day = day;
     }
 
-    public String getDate(){
-        return this.date;
+    public String getDay(){
+        return this.day;
     }
 
     @Override
     public String toString(){
-        return classId + "," + module + "," + room + "," + startTime + "," + endTime + "," + date;
+        return courseID + "," + module + "," + room + "," + startTime + "," + endTime + "," + day;
     }
 
 }
