@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class TimetableManagerView extends Application {
+public class TimetableView extends Application {
 
     private Stage primaryStage;
 
@@ -160,11 +160,11 @@ public class TimetableManagerView extends Application {
                 String day = dayComboBox.getValue();
 
                 boolean fieldsCorrect = checkFields(classId, module, room, startTime, endTime, day);
-                ClassScheduleModel classScheduleModel = new ClassScheduleModel(classId, module, room, startTime, endTime, day);
+                ScheduleModel schedule = new ScheduleModel(classId, module, room, startTime, endTime, day);
                 Label responseLabel = new Label();
 
                 if (fieldsCorrect) {
-                    Task<String> task = new ScheduleTask(classScheduleModel, requestType.toLowerCase());
+                    Task<String> task = new ScheduleTask(schedule, requestType.toLowerCase());
                     responseLabel.textProperty().bind(task.valueProperty());
 
 
@@ -212,8 +212,8 @@ public class TimetableManagerView extends Application {
 
                 task.setOnSucceeded((succeededEvent) -> {
                     confirmButton.setDisable(false);
-                    String formattedTimetable = TimetableFormatter.formatTimetable(task.getValue());
-                    displayAlert(formattedTimetable);
+                    String timetable = task.getValue();
+                    displayAlert(timetable);
                     timetableStage.close();
                     showOptionsScreen();
                 });

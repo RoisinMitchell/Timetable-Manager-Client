@@ -6,14 +6,14 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
-public class TimetableManagerModel {
+public class TimetableModel {
     private static InetAddress host;
     private static final int PORT = 1234;
 
     DataOutputStream dataOutputStream;
     DataInputStream dataInputStream;
 
-    public TimetableManagerModel() {
+    public TimetableModel() {
         try {
             host = InetAddress.getLocalHost();
 

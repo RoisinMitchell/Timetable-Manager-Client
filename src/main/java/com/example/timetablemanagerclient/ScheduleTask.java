@@ -2,23 +2,21 @@ package com.example.timetablemanagerclient;
 
 import javafx.concurrent.Task;
 
-import java.io.IOException;
-
 public class ScheduleTask extends Task<String> {
 
-    private TimetableManagerController controller;
-    private ClassScheduleModel classScheduleModel;
+    private TimetableController controller;
+    private ScheduleModel schedule;
     private String request;
-    private String classID;
+    private String courseID;
     private String response;
 
-    public ScheduleTask(ClassScheduleModel classScheduleModel, String request){
-        this.classScheduleModel = classScheduleModel;
+    public ScheduleTask(ScheduleModel schedule, String request){
+        this.schedule = schedule;
         this.request = request.toLowerCase();
     }
 
-    public ScheduleTask(String classID, String request){
-        this.classID = classID;
+    public ScheduleTask(String courseID, String request){
+        this.courseID = courseID;
         this.request = request.toLowerCase();
     }
 
@@ -28,25 +26,25 @@ public class ScheduleTask extends Task<String> {
     @Override
     protected String call() {
 
-        controller = new TimetableManagerController();
+        controller = new TimetableController();
 
         updateMessage("Processing... ");
 
         switch (request){
             case "add":
-                response = addClass(classScheduleModel);
+                response = addClass(schedule);
                 updateValue(response);
                 break;
             case "remove":
-                response = removeClass(classScheduleModel);
+                response = removeClass(schedule);
                 updateValue(response);
                 break;
             case "display":
-                response = displayClass(classID);
+                response = displayClass(courseID);
                 updateValue(response);
                 break;
             case "early":
-                response = requestEarlyLectures(classID);
+                response = requestEarlyLectures(courseID);
                 updateValue(response);
                 break;
         }
@@ -73,12 +71,12 @@ public class ScheduleTask extends Task<String> {
         this.updateMessage("Task succeeded!");
     }
 
-    private String addClass(ClassScheduleModel classScheduleModel) {
-        return controller.addClass(classScheduleModel);
+    private String addClass(ScheduleModel schedule) {
+        return controller.addClass(schedule);
     }
 
-    private String removeClass(ClassScheduleModel classScheduleModel) {
-        return controller.removeClass(classScheduleModel);
+    private String removeClass(ScheduleModel schedule) {
+        return controller.removeClass(schedule);
     }
 
     private String displayClass(String courseID) {
