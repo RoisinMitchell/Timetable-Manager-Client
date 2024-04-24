@@ -61,7 +61,8 @@ public class TimetableModel {
         return "No response received from server!";
     }
 
-    public String requestDisplayClass(String courseID) {
+    public String
+    requestDisplayClass(String courseID) {
         try {
             System.out.println("\nSending display class request to the server...\n");
             dataOutputStream.writeUTF(courseID);
