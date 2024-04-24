@@ -18,6 +18,7 @@ public class TimetableView extends Application {
 
     private Stage primaryStage; // Primary window of the application
 
+    // The start method is the main entry point for all JavaFX applications
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -25,6 +26,7 @@ public class TimetableView extends Application {
         showStartScreen(); // Display the start screen
     }
 
+    // Method to show the start screen of the application
     private void showStartScreen() {
         Label welcomeLabel = new Label("SCHEDULING APPLICATION"); // Create a label for the welcome message
         welcomeLabel.setFont(Font.font(20)); // Set the font size for the welcome label
@@ -49,6 +51,7 @@ public class TimetableView extends Application {
         primaryStage.show(); // Display the primary stage
     }
 
+    // Method to show the options screen of the application
     private void showOptionsScreen() {
         // Create buttons for the options
         Button addScheduleButton = createButton("Add Schedule", 200, 40, 17, e -> showModifyTimetableScreen("Add"));
@@ -69,6 +72,7 @@ public class TimetableView extends Application {
         primaryStage.show(); // Display the primary stage
     }
 
+    // Method to show the screen for modifying the timetable
     private void showModifyTimetableScreen(String requestType) {
         primaryStage.close(); // Close the primary stage to display the modification stage
         Stage modifyScheduleStage = new Stage(); // Creating a new stage for modifying schedules
@@ -210,6 +214,7 @@ public class TimetableView extends Application {
     }
 
 
+    // Method to show the timetable screen
     private void showTimetableScreen() {
         Stage timetableStage = new Stage();
         timetableStage.setTitle("Timetable");
@@ -220,11 +225,17 @@ public class TimetableView extends Application {
         confirmButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
+                String courseID = courseIDField.getText();
+
+                if(courseID.trim().isEmpty()) {
+                    displayAlert("Please enter a course ID.");
+                    return;
+                }
 
                 Stage timetableViewStage = new Stage();
-                timetableViewStage.setTitle(courseIDField.getText() + " Timetable");
+                timetableViewStage.setTitle(courseID + " Timetable");
 
-                Task<String> task = new ScheduleTask(courseIDField.getText(), "display");
+                Task<String> task = new ScheduleTask(courseID, "display");
 
                 task.setOnRunning((successEvent) -> {
                     confirmButton.setDisable(true);
@@ -290,6 +301,7 @@ public class TimetableView extends Application {
         primaryStage.show();
     }
 
+    // Method to show the early scheduling screen
     private void showEarlySchedulingScreen() {
         Stage earlyLecturesStage = new Stage();
         earlyLecturesStage.setTitle("Early Lectures");
@@ -300,7 +312,14 @@ public class TimetableView extends Application {
         confirmButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
+
                 String courseID = courseIDField.getText();
+
+                if(courseID.trim().isEmpty()) {
+                    displayAlert("Please enter a course ID.");
+                    return;
+                }
+
                 Task<String> task = new ScheduleTask(courseID, "early");
 
                 task.setOnRunning((successEvent) -> {
@@ -341,6 +360,7 @@ public class TimetableView extends Application {
         primaryStage.show();
     }
 
+    // Method to display an alert with a given message
     private void displayAlert(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Information");
@@ -349,6 +369,7 @@ public class TimetableView extends Application {
         alert.showAndWait();
     }
 
+    // Method to check if the fields for a schedule are correctly filled
     private boolean checkFields(String classId, String moduleCode, String room, String startTime, String endTime, String day) {
         if (moduleCode.trim().isEmpty() || day.trim().isEmpty() || startTime.trim().isEmpty() || endTime.trim().isEmpty() || room.trim().isEmpty()) {
             displayAlert("Please fill in all fields.");
@@ -366,6 +387,7 @@ public class TimetableView extends Application {
         return true;
     }
 
+    // Method to create a button with given properties and an event handler
     private Button createButton(String text, double width, double height, double fontSize, EventHandler<ActionEvent> eventHandler) {
         Button button = new Button(text);
         button.setPrefSize(width, height);
@@ -374,6 +396,7 @@ public class TimetableView extends Application {
         return button;
     }
 
+    // Method to close the application
     private void closeApplication() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Closing Application");
@@ -383,6 +406,7 @@ public class TimetableView extends Application {
         primaryStage.close();
     }
 
+    // The main method of the application
     public static void main(String[] args) {
         launch(args);
     }

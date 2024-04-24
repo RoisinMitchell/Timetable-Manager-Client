@@ -1,4 +1,5 @@
 package com.example.timetablemanagerclient;
+
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -15,28 +16,34 @@ import javafx.scene.text.Font;
 import java.time.DayOfWeek;
 import java.util.*;
 
+// The TimetableFormatting class is responsible for formatting and displaying the timetable
 public class TimetableFormatting {
+    // A map to store schedules by day and time
     private final Map<String, Map<String, ScheduleModel>> schedulesByDayAndTime;
     private String courseID;
 
+    // The constructor initialises the schedules map and maps the input schedules to ScheduleModel objects
     public TimetableFormatting(String schedules) {
         this.schedulesByDayAndTime = new HashMap<>();
 
+        // Initialise the schedules map with an empty map for each day of the week
         for (DayOfWeek day : DayOfWeek.values()) {
             schedulesByDayAndTime.put(day.toString().toUpperCase(), new HashMap<>());
         }
 
+        // Map the input schedules to ScheduleModel objects
         mapToScheduleObjects(schedules);
     }
 
-
+    // The addToScheduleMap method adds a schedule to the schedules map
     private void addToScheduleMap(ScheduleModel schedule) {
         Map<String, ScheduleModel> schedulesByTime = schedulesByDayAndTime.get(schedule.getDay().toUpperCase());
-        String timeKey = schedule.getStartTime().toString(); ////////////////////////////////////////////////////////////////////
+        String timeKey = schedule.getStartTime().toString();
         schedulesByTime.put(timeKey, schedule);
         schedulesByDayAndTime.put(schedule.getDay().toUpperCase(), schedulesByTime);
     }
 
+    // The mapToScheduleObjects method maps a string of schedules to ScheduleModel objects
     private void mapToScheduleObjects(String schedulesString) {
         String[] schedulesByLine = schedulesString.split("-");
 
@@ -45,6 +52,7 @@ public class TimetableFormatting {
             String[] scheduleElements = schedulesByLine[i].split(",");
             this.courseID = scheduleElements[0].trim().toUpperCase();
 
+            // Set the properties of the schedule from the schedule elements
             schedule.setCourseID(scheduleElements[0].trim().toUpperCase());
             schedule.setModule(scheduleElements[1].trim().toUpperCase());
             schedule.setRoom(scheduleElements[2].trim().toUpperCase());
@@ -52,16 +60,18 @@ public class TimetableFormatting {
             schedule.setEndTime(scheduleElements[4].trim().toUpperCase());
             schedule.setDay(scheduleElements[5].trim().toUpperCase());
 
+            // Add the schedule to the schedules map
             addToScheduleMap(schedule);
         }
     }
 
-    // Access schedule by day and time
+    // The getScheduleByDayAndTime method returns a schedule for a given day and time
     public ScheduleModel getScheduleByDayAndTime(String day, String time) {
         Map<String, ScheduleModel> schedulesByTime = schedulesByDayAndTime.get(day.toUpperCase());
         return schedulesByTime.get(time);
     }
 
+    // The createTimetableScene method creates a scene for the timetable
     public Scene createTimetableScene() {
         // Create VBox to hold course information and table
         VBox root = new VBox();
@@ -69,13 +79,14 @@ public class TimetableFormatting {
         root.setSpacing(20); // Add spacing above the table
         root.setPadding(new Insets(20)); // Add padding around the VBox
 
+        // Create and configure the label for the course information
         Label yearLabel = new Label(courseID + " - Timetable 2024");
         yearLabel.setFont(new Font(35)); // Set font size
 
         // Add course information to the VBox
         root.getChildren().addAll(yearLabel);
 
-        // Create GridPane for timetable
+        // Create and configure the GridPane for the timetable
         GridPane gridPane = new GridPane();
         gridPane.setAlignment(Pos.CENTER);
 
@@ -140,9 +151,6 @@ public class TimetableFormatting {
                         GridPane.setHalignment(scheduleLabel, HPos.CENTER);
                         GridPane.setValignment(scheduleLabel, VPos.CENTER);
                     }
-
-                    // Move the outer loop's hour index to the end hour of the schedule
-                    hour = endHour;
                 }
             }
         }

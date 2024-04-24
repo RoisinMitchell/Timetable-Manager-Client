@@ -21,7 +21,6 @@ public class ScheduleModel {
     }
 
     public ScheduleModel(){
-
     }
 
     public void setCourseID(String className){

@@ -2,89 +2,63 @@ package com.example.timetablemanagerclient;
 
 import javafx.concurrent.Task;
 
+// ScheduleTask class extends the JavaFX Task class to perform certain operations in a separate thread
 public class ScheduleTask extends Task<String> {
 
+    // Instance of TimetableController to perform operations
     private TimetableController controller;
     private ScheduleModel schedule;
     private String request;
     private String courseID;
-    private String response;
+
 
     public ScheduleTask(ScheduleModel schedule, String request){
         this.schedule = schedule;
         this.request = request.toLowerCase();
     }
 
+    // Constructor to initialise ScheduleTask with a course ID and a request
     public ScheduleTask(String courseID, String request){
         this.courseID = courseID;
         this.request = request.toLowerCase();
     }
 
-    public ScheduleTask(){
-    }
-
+    // The call method is overridden from the Task class. It is the method that is executed in the separate thread.
     @Override
     protected String call() {
-
+        // Initialise the controller
         controller = new TimetableController();
-
+        // Update the message property of the Task
         updateMessage("Processing... ");
 
-        switch (request){
-            case "add":
-                response = addClass(schedule);
-                updateValue(response);
-                break;
-            case "remove":
-                response = removeClass(schedule);
-                updateValue(response);
-                break;
-            case "display":
-                response = displayClass(courseID);
-                updateValue(response);
-                break;
-            case "early":
-                response = requestEarlyLectures(courseID);
-                updateValue(response);
-                break;
-        }
-        updateMessage("Done.  ");
+        // Perform the operation based on the request and store the response
+        String response = switch (request) {
+            case "add" -> controller.addClass(schedule);
+            case "remove" -> controller.removeClass(schedule);
+            case "display" -> controller.displayClass(courseID);
+            case "early" -> controller.requestEarlyLectures(courseID);
+            default -> "";
+        };
 
+        // Update the message property of the Task
+        updateMessage("Done.  ");
+        // Return the response
         return response;
     }
 
-    @Override
-    protected void cancelled(){
-        super.cancelled();
-        this.updateMessage("Task was cancelled!");
-    }
-
+    // The failed method is overridden from the Task class. It is called if the Task fails.
     @Override
     protected void failed(){
         super.failed();
+        // Update the message property of the Task
         this.updateMessage("Task failed!");
     }
 
+    // The succeeded method is overridden from the Task class. It is called if the Task succeeds.
     @Override
     protected void succeeded(){
         super.succeeded();
+        // Update the message property of the Task
         this.updateMessage("Task succeeded!");
     }
-
-    private String addClass(ScheduleModel schedule) {
-        return controller.addClass(schedule);
-    }
-
-    private String removeClass(ScheduleModel schedule) {
-        return controller.removeClass(schedule);
-    }
-
-    private String displayClass(String courseID) {
-        return controller.displayClass(courseID);
-    }
-
-    private String requestEarlyLectures(String courseID){
-        return controller.requestEarlyLectures(courseID);
-    }
-
 }
