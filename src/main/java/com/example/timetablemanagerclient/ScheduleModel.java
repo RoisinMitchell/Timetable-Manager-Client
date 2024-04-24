@@ -1,19 +1,22 @@
 package com.example.timetablemanagerclient;
 
+import java.time.Duration;
+import java.time.LocalTime;
+
 public class ScheduleModel {
     private String courseID; // Format: LM051-2022
     private String module; // Format: CS4115
     private String room; // Format: S205
-    private String startTime; // Format: HH:mm
-    private String endTime; // Format: HH:mm
+    private LocalTime startTime; // Format: HH:mm
+    private LocalTime endTime; // Format: HH:mm
     private String day; // Format: yyyy-mm-dd
 
     public ScheduleModel(String courseID, String module, String room, String startTime, String endTime, String day){
         this.courseID = courseID;
         this.module = module;
         this.room = room;
-        this.startTime = startTime;
-        this.endTime = endTime;
+        setStartTime(startTime);
+        setEndTime(endTime);
         this.day = day;
     }
 
@@ -49,19 +52,28 @@ public class ScheduleModel {
     }
 
     public void setStartTime(String startTime){
-        this.startTime = startTime;
+        String[] timeParts = startTime.split(":");
+        int hour = Integer.parseInt(timeParts[0]);
+        this.startTime = LocalTime.of(hour, 0);
     }
 
-    public String getStartTime(){
+    public LocalTime getStartTime(){
         return this.startTime;
     }
 
     public void setEndTime(String endTime){
-        this.endTime = endTime;
+        String[] timeParts = endTime.split(":");
+        int hour = Integer.parseInt(timeParts[0]);
+        this.endTime = LocalTime.of(hour, 0);
     }
 
-    public String getEndTime(){
+    public LocalTime getEndTime(){
         return this.endTime;
+    }
+
+    public int getDuration(){
+        Duration duration = Duration.between(startTime, endTime);
+        return duration.toHoursPart();
     }
 
     public void setDay(String day) {

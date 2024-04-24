@@ -26,16 +26,16 @@ public class TimetableView extends Application {
     @Override
     public void start(Stage primaryStage){
         this.primaryStage = primaryStage;
-        primaryStage.setTitle("Class Scheduler");
+        primaryStage.setTitle("Scheduling Application");
         showStartScreen();
     }
 
     private void showStartScreen() {
-        Label welcomeLabel = new Label("Class scheduler");
+        Label welcomeLabel = new Label("SCHEDULING APPLICATION");
         welcomeLabel.setFont(Font.font(20));
 
-        Button enterButton = createButton("Enter", 100, 40, 15, e -> showOptionsScreen());
-        Button closeButton = createButton("Close", 100, 40, 15, e -> closeApplication());
+        Button enterButton = createButton("Enter", 200, 40, 17, e -> showOptionsScreen());
+        Button closeButton = createButton("Close", 200, 40, 17, e -> closeApplication());
 
         HBox buttonLayout = new HBox(20, enterButton, closeButton);
         buttonLayout.setAlignment(Pos.CENTER);
@@ -45,19 +45,19 @@ public class TimetableView extends Application {
         welcomeLayout.setAlignment(Pos.CENTER);
         welcomeLayout.setPadding(new Insets(20));
 
-        Scene welcomeScene = new Scene(welcomeLayout, 400, 200);
+        Scene welcomeScene = new Scene(welcomeLayout, 400, 300);
 
         primaryStage.setScene(welcomeScene);
         primaryStage.show();
     }
 
     private void showOptionsScreen() {
-        Button addClassButton = createButton("Add Class", 150, 40, 15, e -> showModifyTimetableScreen("Add"));
-        Button removeClassButton = createButton("Remove Class", 150, 40, 15, e -> showModifyTimetableScreen("Remove"));
-        Button displayTimetableButton = createButton("Display Timetable", 150, 40, 15, e -> showTimetableScreen());
-        Button closeButton = createButton("Early Lectures", 150, 40, 15, e -> showEarlyLecturesScreen());
+        Button addScheduleButton = createButton("Add Schedule", 200, 40, 17, e -> showModifyTimetableScreen("Add"));
+        Button removeScheduleButton = createButton("Remove Schedule", 200, 40, 17, e -> showModifyTimetableScreen("Remove"));
+        Button displayTimetableButton = createButton("Display Timetable", 200, 40, 17, e -> showTimetableScreen());
+        Button closeButton = createButton("Early Scheduling", 200, 40, 17, e -> showEarlySchedulingScreen());
 
-        VBox optionsLayout = new VBox(20, addClassButton, removeClassButton, displayTimetableButton, closeButton);
+        VBox optionsLayout = new VBox(20, addScheduleButton, removeScheduleButton, displayTimetableButton, closeButton);
         optionsLayout.setStyle("-fx-background-color: #839ca3;");
         optionsLayout.setAlignment(Pos.CENTER);
         optionsLayout.setPadding(new Insets(20));
@@ -70,16 +70,16 @@ public class TimetableView extends Application {
 
     private void showModifyTimetableScreen(String requestType) {
         primaryStage.close();
-        Stage modifyClassStage = new Stage();
-        modifyClassStage.setTitle(requestType + " Class");
+        Stage modifyScheduleStage = new Stage();
+        modifyScheduleStage.setTitle(requestType + " Schedule");
 
-        TextField classIdField = new TextField();
-        classIdField.setPromptText("Class ID");
-        classIdField.setPrefWidth(200); // Set the preferred width
+        TextField courseIDField = new TextField();
+        courseIDField.setPromptText("Course ID");
+        courseIDField.setPrefWidth(200); // Set the preferred width
 
-        TextField moduleCodeField = new TextField();
-        moduleCodeField.setPromptText("Module Code");
-        moduleCodeField.setPrefWidth(200); // Set the preferred width
+        TextField moduleField = new TextField();
+        moduleField.setPromptText("Module Code");
+        moduleField.setPrefWidth(200); // Set the preferred width
 
         ComboBox<String> dayComboBox = new ComboBox<>();
         dayComboBox.setPromptText("Day");
@@ -100,9 +100,11 @@ public class TimetableView extends Application {
         endTimeComboBox.setItems(times);
         endTimeComboBox.setPrefWidth(200);
 
-        TextField roomField = new TextField();
-        roomField.setPromptText("Room");
-        roomField.setPrefWidth(200);
+        ComboBox<String> roomsComboBox = new ComboBox<>();
+        roomsComboBox.setPromptText("Room");
+        roomsComboBox.setPrefWidth(200);
+        ObservableList<String> rooms = FXCollections.observableArrayList("S205", "S206", "S207", "S208", "S209");
+        roomsComboBox.setItems(rooms);
 
         Button submitButton = new Button("Submit");
         Button cancelButton = new Button("Cancel");
@@ -122,13 +124,13 @@ public class TimetableView extends Application {
         addClassLayout.setPadding(new Insets(20));
 
         addClassLayout.add(classIdLabel, 0, 0);
-        addClassLayout.add(classIdField, 1, 0);
+        addClassLayout.add(courseIDField, 1, 0);
 
         addClassLayout.add(moduleLabel, 0, 1);
-        addClassLayout.add(moduleCodeField, 1, 1);
+        addClassLayout.add(moduleField, 1, 1);
 
         addClassLayout.add(roomLabel, 0, 2);
-        addClassLayout.add(roomField, 1, 2);
+        addClassLayout.add(roomsComboBox, 1, 2);
 
         addClassLayout.add(dayLabel, 0, 3);
         addClassLayout.add(dayComboBox, 1, 3);
@@ -146,15 +148,15 @@ public class TimetableView extends Application {
 
         Scene modifyClassScene = new Scene(addClassLayout, 400, 300);
 
-        modifyClassStage.setScene(modifyClassScene);
-        modifyClassStage.show();
+        modifyScheduleStage.setScene(modifyClassScene);
+        modifyScheduleStage.show();
 
         submitButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                String classId = classIdField.getText();
-                String module = moduleCodeField.getText();
-                String room = roomField.getText();
+                String classId = courseIDField.getText();
+                String module = moduleField.getText();
+                String room = roomsComboBox.getValue();
                 String startTime = startTimeComboBox.getValue();
                 String endTime = endTimeComboBox.getValue();
                 String day = dayComboBox.getValue();
@@ -176,7 +178,7 @@ public class TimetableView extends Application {
                         submitButton.setDisable(false);
                         String result = task.getValue();
                         displayAlert(result);
-                        modifyClassStage.close();
+                        modifyScheduleStage.close();
                         showOptionsScreen();
                     });
 
@@ -188,7 +190,7 @@ public class TimetableView extends Application {
         });
 
         cancelButton.setOnAction(e -> {
-            modifyClassStage.close();
+            modifyScheduleStage.close();
             showOptionsScreen();
         });
     }
@@ -203,19 +205,38 @@ public class TimetableView extends Application {
         confirmButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                String courseID = courseIDField.getText();
-                Task<String> task = new ScheduleTask(courseID, "display");
+
+                Stage timetableViewStage = new Stage();
+                timetableViewStage.setTitle(courseIDField.getText() + " Timetable");
+
+                Task<String> task = new ScheduleTask(courseIDField.getText(), "display");
 
                 task.setOnRunning((successEvent) -> {
                     confirmButton.setDisable(true);
                 });
 
                 task.setOnSucceeded((succeededEvent) -> {
+                    primaryStage.close();
                     confirmButton.setDisable(false);
-                    String timetable = task.getValue();
-                    displayAlert(timetable);
-                    timetableStage.close();
-                    showOptionsScreen();
+                    TimetableFormatting timetableFormatting = new TimetableFormatting(task.getValue());
+                    Scene timetableScene = timetableFormatting.createTimetableScene();
+
+                    // Add OK button to revert back to the options scene
+                    Button okButton = new Button("OK");
+                    okButton.setOnAction(e -> {
+                        showOptionsScreen();
+                        timetableViewStage.close();
+                    });
+
+                    VBox timetableLayout = new VBox(20);
+                    timetableLayout.setStyle("-fx-background-color: #839ca3;");
+                    timetableLayout.getChildren().addAll(timetableScene.getRoot(), okButton);
+                    timetableLayout.setAlignment(Pos.CENTER);
+                    timetableLayout.setPadding(new Insets(20));
+
+                    Scene scene = new Scene(timetableLayout, 1000, 800);
+                    timetableViewStage.setScene(scene);
+                    timetableViewStage.show();
                 });
 
                 ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -234,7 +255,6 @@ public class TimetableView extends Application {
         VBox timetableLayout = new VBox(10);
         timetableLayout.setStyle("-fx-background-color: #839ca3;");
         timetableLayout.getChildren().addAll(courseIDField, buttonLayout);
-
         timetableLayout.setAlignment(Pos.CENTER);
         timetableLayout.setPadding(new Insets(20));
 
@@ -244,7 +264,7 @@ public class TimetableView extends Application {
         primaryStage.show();
     }
 
-    private void showEarlyLecturesScreen() {
+    private void showEarlySchedulingScreen() {
         Stage earlyLecturesStage = new Stage();
         earlyLecturesStage.setTitle("Early Lectures");
 
@@ -336,8 +356,6 @@ public class TimetableView extends Application {
         alert.showAndWait();
         primaryStage.close();
     }
-
-
 
     public static void main(String[] args) {
         launch(args);
