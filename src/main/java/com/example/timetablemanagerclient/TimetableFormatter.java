@@ -12,18 +12,16 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-
 import java.time.DayOfWeek;
 import java.util.*;
 
-// The TimetableFormatting class is responsible for formatting and displaying the timetable
-public class TimetableFormatting {
-    // A map to store schedules by day and time
+
+public class TimetableFormatter {
     private final Map<String, Map<String, ScheduleModel>> schedulesByDayAndTime;
     private String courseID;
 
     // The constructor initialises the schedules map and maps the input schedules to ScheduleModel objects
-    public TimetableFormatting(String schedules) {
+    public TimetableFormatter(String schedules) {
         this.schedulesByDayAndTime = new HashMap<>();
 
         // Initialise the schedules map with an empty map for each day of the week
@@ -35,7 +33,6 @@ public class TimetableFormatting {
         mapToScheduleObjects(schedules);
     }
 
-    // The addToScheduleMap method adds a schedule to the schedules map
     private void addToScheduleMap(ScheduleModel schedule) {
         Map<String, ScheduleModel> schedulesByTime = schedulesByDayAndTime.get(schedule.getDay().toUpperCase());
         String timeKey = schedule.getStartTime().toString();
@@ -94,7 +91,7 @@ public class TimetableFormatting {
         for (int i = 0; i < 6; i++) {
             ColumnConstraints colConstraints = new ColumnConstraints();
             colConstraints.setHgrow(Priority.ALWAYS);
-            colConstraints.setPrefWidth(100); // Set preferred width for each column
+            colConstraints.setPrefWidth(100);
             gridPane.getColumnConstraints().add(colConstraints);
         }
 
@@ -102,7 +99,7 @@ public class TimetableFormatting {
         for (int i = 0; i < 10; i++) {
             RowConstraints rowConstraints = new RowConstraints();
             rowConstraints.setVgrow(Priority.ALWAYS);
-            rowConstraints.setPrefHeight(50); // Set preferred height for each row
+            rowConstraints.setPrefHeight(50);
             gridPane.getRowConstraints().add(rowConstraints);
         }
 
@@ -144,7 +141,7 @@ public class TimetableFormatting {
                     for (int i = hour; i < endHour; i++) {
                         String currentSlot = String.format("%02d:00", i);
                         Label scheduleLabel = new Label(schedule.getModule() + " - " + schedule.getRoom());
-                        scheduleLabel.setFont(new Font(15)); // Set font size
+                        scheduleLabel.setFont(new Font(15));
                         scheduleLabel.setAlignment(Pos.CENTER);
 
                         gridPane.add(scheduleLabel, dayIndex, i - 8); // Adjusted index by subtracting 8
@@ -155,10 +152,8 @@ public class TimetableFormatting {
             }
         }
 
-        // Add gridPane to the VBox
         root.getChildren().add(gridPane);
 
-        // Create the scene
         return new Scene(root, 1000, 800);
     }
 }

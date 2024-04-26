@@ -4,12 +4,12 @@ import java.time.Duration;
 import java.time.LocalTime;
 
 public class ScheduleModel {
-    private String courseID; // Format: LM051-2022
-    private String module; // Format: CS4115
-    private String room; // Format: S205
-    private LocalTime startTime; // Format: HH:mm
-    private LocalTime endTime; // Format: HH:mm
-    private String day; // Format: yyyy-mm-dd
+    private String courseID;
+    private String module;
+    private String room;
+    private LocalTime startTime;
+    private LocalTime endTime;
+    private String day;
 
     public ScheduleModel(String courseID, String module, String room, String startTime, String endTime, String day){
         this.courseID = courseID;
@@ -27,24 +27,17 @@ public class ScheduleModel {
         this.courseID = className;
     }
 
-    public String getCourseID(){
-        return this.courseID;
-    }
-
     public void setModule(String module){
         this.module = module;
     }
-
 
     public String getModule(){
         return this.module;
     }
 
-
     public void setRoom(String room){
         this.room = room;
     }
-
 
     public String getRoom(){
         return this.room;
@@ -66,10 +59,6 @@ public class ScheduleModel {
         this.endTime = LocalTime.of(hour, 0);
     }
 
-    public LocalTime getEndTime(){
-        return this.endTime;
-    }
-
     public int getDuration(){
         Duration duration = Duration.between(startTime, endTime);
         return duration.toHoursPart();
@@ -87,5 +76,4 @@ public class ScheduleModel {
     public String toString(){
         return courseID + "," + module + "," + room + "," + startTime + "," + endTime + "," + day;
     }
-
 }

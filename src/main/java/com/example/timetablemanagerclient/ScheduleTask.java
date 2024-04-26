@@ -11,13 +11,11 @@ public class ScheduleTask extends Task<String> {
     private String request;
     private String courseID;
 
-
     public ScheduleTask(ScheduleModel schedule, String request){
         this.schedule = schedule;
         this.request = request.toLowerCase();
     }
 
-    // Constructor to initialise ScheduleTask with a course ID and a request
     public ScheduleTask(String courseID, String request){
         this.courseID = courseID;
         this.request = request.toLowerCase();
@@ -44,21 +42,5 @@ public class ScheduleTask extends Task<String> {
         updateMessage("Done.  ");
         // Return the response
         return response;
-    }
-
-    // The failed method is overridden from the Task class. It is called if the Task fails.
-    @Override
-    protected void failed(){
-        super.failed();
-        // Update the message property of the Task
-        this.updateMessage("Task failed!");
-    }
-
-    // The succeeded method is overridden from the Task class. It is called if the Task succeeds.
-    @Override
-    protected void succeeded(){
-        super.succeeded();
-        // Update the message property of the Task
-        this.updateMessage("Task succeeded!");
     }
 }

@@ -16,33 +16,33 @@ import java.util.concurrent.*;
 
 public class TimetableView extends Application {
 
-    private Stage primaryStage; // Primary window of the application
+    private Stage primaryStage;
 
     // The start method is the main entry point for all JavaFX applications
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        primaryStage.setTitle("Scheduling Application"); // Set the title of the primary stage
-        showStartScreen(); // Display the start screen
+        primaryStage.setTitle("Scheduling Application");
+        showStartScreen();
     }
 
     // Method to show the start screen of the application
     private void showStartScreen() {
-        Label welcomeLabel = new Label("SCHEDULING APPLICATION"); // Create a label for the welcome message
-        welcomeLabel.setFont(Font.font(20)); // Set the font size for the welcome label
+        Label welcomeLabel = new Label("SCHEDULING APPLICATION");
+        welcomeLabel.setFont(Font.font(20));
 
         // Creating buttons for entering the application and closing it
         Button enterButton = createButton("Enter", 200, 40, 17, e -> showOptionsScreen());
         Button closeButton = createButton("Close", 200, 40, 17, e -> closeApplication());
 
         HBox buttonLayout = new HBox(20, enterButton, closeButton); // Layout for buttons
-        buttonLayout.setAlignment(Pos.CENTER); // Centering the buttons
+        buttonLayout.setAlignment(Pos.CENTER);
 
         // Layout for the welcome screen
         VBox welcomeLayout = new VBox(20, welcomeLabel, buttonLayout);
-        welcomeLayout.setStyle("-fx-background-color: #839ca3;"); // Set background color
-        welcomeLayout.setAlignment(Pos.CENTER); // Centering the content
-        welcomeLayout.setPadding(new Insets(20)); // Add padding around the layout
+        welcomeLayout.setStyle("-fx-background-color: #839ca3;"); // Set background color with css
+        welcomeLayout.setAlignment(Pos.CENTER);
+        welcomeLayout.setPadding(new Insets(20));
 
         // Create the scene for the welcome screen
         Scene welcomeScene = new Scene(welcomeLayout, 400, 300);
@@ -61,23 +61,19 @@ public class TimetableView extends Application {
 
         // Layout for the options screen
         VBox optionsLayout = new VBox(20, addScheduleButton, removeScheduleButton, displayTimetableButton, closeButton);
-        optionsLayout.setStyle("-fx-background-color: #839ca3;"); // Set background color
-        optionsLayout.setAlignment(Pos.CENTER); // Centering the content
-        optionsLayout.setPadding(new Insets(20)); // Add padding around the layout
+        optionsLayout.setStyle("-fx-background-color: #839ca3;"); // Set background color using cs
+        optionsLayout.setAlignment(Pos.CENTER);
+        optionsLayout.setPadding(new Insets(20));
 
         // Create the scene for the options screen
         Scene optionsScene = new Scene(optionsLayout, 400, 300);
 
-        primaryStage.setScene(optionsScene); // Set the scene on the primary stage
-        primaryStage.show(); // Display the primary stage
+        primaryStage.setScene(optionsScene);
+        primaryStage.show();
     }
 
     // Method to show the screen for modifying the timetable
     private void showModifyTimetableScreen(String requestType) {
-        primaryStage.close(); // Close the primary stage to display the modification stage
-        Stage modifyScheduleStage = new Stage(); // Creating a new stage for modifying schedules
-        modifyScheduleStage.setTitle(requestType + " Schedule");
-
         // Creating input fields and components for modifying schedules
         TextField courseIDField = new TextField();
         courseIDField.setPromptText("Course ID");
@@ -159,9 +155,8 @@ public class TimetableView extends Application {
         // Create the scene for the modification screen
         Scene modifyClassScene = new Scene(addClassLayout, 400, 300);
 
-        // Set the scene on the modification stage and display it
-        modifyScheduleStage.setScene(modifyClassScene);
-        modifyScheduleStage.show();
+        primaryStage.setScene(modifyClassScene);
+        primaryStage.show();
 
         // Define actions for submit and cancel buttons
         submitButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -178,12 +173,10 @@ public class TimetableView extends Application {
                 // Check if all fields are correctly filled
                 boolean fieldsCorrect = checkFields(classId, module, room, startTime, endTime, day);
                 ScheduleModel schedule = new ScheduleModel(classId, module, room, startTime, endTime, day);
-                Label responseLabel = new Label();
 
                 if (fieldsCorrect) {
                     // Create and execute a task to handle the schedule modification
                     Task<String> task = new ScheduleTask(schedule, requestType.toLowerCase());
-                    responseLabel.textProperty().bind(task.valueProperty());
 
                     // Disable the submit button while the task is running
                     task.setOnRunning((successEvent) -> {
@@ -195,7 +188,6 @@ public class TimetableView extends Application {
                         submitButton.setDisable(false);
                         String result = task.getValue();
                         displayAlert(result);
-                        modifyScheduleStage.close();
                         showOptionsScreen();
                     });
 
@@ -208,7 +200,6 @@ public class TimetableView extends Application {
 
         // Define action for cancel button
         cancelButton.setOnAction(e -> {
-            modifyScheduleStage.close(); // Close the modification stage
             showOptionsScreen(); // Show the options screen
         });
     }
@@ -216,9 +207,6 @@ public class TimetableView extends Application {
 
     // Method to show the timetable screen
     private void showTimetableScreen() {
-        Stage timetableStage = new Stage();
-        timetableStage.setTitle("Timetable");
-
         TextField courseIDField = new TextField();
         courseIDField.setPromptText("Enter Course ID");
         Button confirmButton = new Button("Confirm");
@@ -242,16 +230,14 @@ public class TimetableView extends Application {
                 });
 
                 task.setOnSucceeded((succeededEvent) -> {
-                    primaryStage.close();
                     confirmButton.setDisable(false);
-                    String response = task.getValue();
 
                     if (task.getValue().startsWith("ERROR")) {
                         displayAlert(task.getValue());
                         showOptionsScreen();
                     } else {
-                        TimetableFormatting timetableFormatting = new TimetableFormatting(task.getValue());
-                        Scene timetableScene = timetableFormatting.createTimetableScene();
+                        TimetableFormatter timetableFormatter = new TimetableFormatter(task.getValue());
+                        Scene timetableScene = timetableFormatter.createTimetableScene();
 
                         Button okButton = new Button("OK");
                         okButton.setPrefWidth(100);
@@ -283,7 +269,7 @@ public class TimetableView extends Application {
         });
 
         Button cancelButton = new Button("Cancel");
-        cancelButton.setOnAction(e -> timetableStage.close());
+        cancelButton.setOnAction(e -> showOptionsScreen());
 
         HBox buttonLayout = new HBox(10);
         buttonLayout.getChildren().addAll(confirmButton, cancelButton);
@@ -296,16 +282,12 @@ public class TimetableView extends Application {
         timetableLayout.setPadding(new Insets(20));
 
         Scene timetableScene = new Scene(timetableLayout, 400, 300);
-
         primaryStage.setScene(timetableScene);
         primaryStage.show();
     }
 
     // Method to show the early scheduling screen
     private void showEarlySchedulingScreen() {
-        Stage earlyLecturesStage = new Stage();
-        earlyLecturesStage.setTitle("Early Lectures");
-
         TextField courseIDField = new TextField();
         courseIDField.setPromptText("Enter Course ID");
         Button confirmButton = new Button("Confirm");
@@ -330,7 +312,6 @@ public class TimetableView extends Application {
                     confirmButton.setDisable(false);
                     String result = task.getValue();
                     displayAlert(result);
-                    earlyLecturesStage.close();
                     showOptionsScreen();
                 });
 
@@ -341,7 +322,7 @@ public class TimetableView extends Application {
         });
 
         Button cancelButton = new Button("Cancel");
-        cancelButton.setOnAction(e -> earlyLecturesStage.close());
+        cancelButton.setOnAction(e -> showOptionsScreen());
 
         HBox buttonLayout = new HBox(10);
         buttonLayout.getChildren().addAll(confirmButton, cancelButton);
@@ -403,7 +384,6 @@ public class TimetableView extends Application {
         alert.setHeaderText(null);
         alert.setContentText("Closing application...");
         alert.showAndWait();
-        primaryStage.close();
     }
 
     // The main method of the application
